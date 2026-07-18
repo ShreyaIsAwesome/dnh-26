@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback, useEffect } from 'rea
 
 // ── Types ─────────────────────────────────────────────────────────
 
-export type OrderSource = 'manual' | 'doordash' | 'ubereats' | 'grubhub';
+export type OrderSource = 'manual' | 'doordash' | 'ubereats' | 'grubhub' | 'online';
 export type OrderStatus = 'pending' | 'completed';
 
 export interface Order {

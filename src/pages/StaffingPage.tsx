@@ -7,6 +7,7 @@ import {
   getRushPeriodForSlot, getActiveEmployees, getStationingPlan,
 } from '../lib/staffing';
 import { useActivity } from '../context/ActivityContext';
+import { useTodo } from '../context/TodoContext';
 import './StaffingPage.css';
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -276,6 +277,7 @@ function EmployeeModal({ onSave, onClose }: EmployeeModalProps) {
 
 export default function StaffingPage() {
   const { addActivity } = useActivity();
+  const { addOrder: todoAddOrder } = useTodo();
   const [employees,   setEmployees]   = useState<Employee[]>(SEED_EMPLOYEES);
   const [rushPeriods, setRushPeriods] = useState<RushPeriod[]>(SEED_RUSH_PERIODS);
   const [orders,      setOrders]      = useState<OnlineOrder[]>([]);
@@ -328,10 +330,12 @@ export default function StaffingPage() {
   }, []);
 
   const addOrder = useCallback((o: Omit<OnlineOrder, 'id'>) => {
+    const orderNum = `#ONL${newId().slice(-4).toUpperCase()}`;
     setOrders(prev => [...prev, { id: newId(), ...o }]);
     addActivity(`Online order queued: ${o.label} (${o.prepMinutes} min prep)`, 'order');
+    todoAddOrder(orderNum, 'Online Order', o.label, 'online');
     setShowOrderModal(false);
-  }, [addActivity]);
+  }, [addActivity, todoAddOrder]);
 
   const deleteOrder = useCallback((id: string) => {
     setOrders(prev => prev.filter(o => o.id !== id));
