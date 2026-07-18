@@ -3,15 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useActivity, formatTimeAgo } from '../context/ActivityContext';
 import type { ActivityType } from '../context/ActivityContext';
+import { useTodo } from '../context/TodoContext';
 import ChartModal from '../components/ChartModal';
 import InventoryPage from './InventoryPage';
 import OperationsPage from './OperationsPage';
 import StaffingPage from './StaffingPage';
 import FeedbackPage from './FeedbackPage';
 import AIAssistantPage from './AIAssistantPage';
+import TodoPage from './TodoPage';
 import './Dashboard.css';
 
-type Tab = 'dashboard' | 'inventory' | 'operations' | 'calendar' | 'feedback' | 'ai-assistant';
+type Tab = 'dashboard' | 'inventory' | 'operations' | 'calendar' | 'feedback' | 'ai-assistant' | 'todo';
 type ChartType = 'revenue' | 'customers';
 
 const stats = [
@@ -34,6 +36,7 @@ const TYPE_ICON: Record<ActivityType, string> = {
 
 const navItems: { label: string; tab: Tab }[] = [
   { label: 'Dashboard',    tab: 'dashboard'    },
+  { label: 'Task Board',   tab: 'todo'         },
   { label: 'Inventory',    tab: 'inventory'    },
   { label: 'Operations',   tab: 'operations'   },
   { label: 'Calendar',     tab: 'calendar'     },
@@ -110,6 +113,7 @@ export default function Dashboard() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { activities, addActivity } = useActivity();
+  const { addOrder } = useTodo();
 
   const [activeTab,      setActiveTab]      = useState<Tab>('dashboard');
   const [chartModal,     setChartModal]     = useState<ChartType | null>(null);
@@ -136,10 +140,12 @@ export default function Dashboard() {
 
   const handleOrderSave = (orderId: string, customer: string, items: string) => {
     addActivity(`New order ${orderId} placed — ${customer} — ${items}`, 'order');
+    addOrder(orderId, customer, items, 'manual');
     setShowOrderModal(false);
   };
 
   const renderMain = () => {
+    if (activeTab === 'todo')         return <TodoPage onNavigate={(tab) => setActiveTab(tab as Tab)} />;
     if (activeTab === 'inventory')    return <InventoryPage />;
     if (activeTab === 'operations')   return <OperationsPage />;
     if (activeTab === 'calendar')     return <StaffingPage />;
@@ -201,12 +207,16 @@ export default function Dashboard() {
                 className="quick-btn quick-btn--primary"
                 onClick={() => setShowOrderModal(true)}
               >📦 New Order</button>
+              <button className="quick-btn quick-btn--primary" onClick={() => setActiveTab('todo')}>
+                ✓ Task Board
+              </button>
               <button className="quick-btn" onClick={() => setActiveTab('inventory')}>
                 🥦 Update Stock
               </button>
               <button className="quick-btn" onClick={() => setActiveTab('calendar')}>
                 📅 Schedule
               </button>
+              
             </div>
           </section>
         </div>

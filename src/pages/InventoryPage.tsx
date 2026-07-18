@@ -2,11 +2,12 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import type { InventoryItem, Category, Status } from '../lib/inventory';
 import {
   calculateStatus, checkRestock, parseInvoice,
-  seedInventory, CATEGORIES, STORAGE_LOCATIONS, UNITS,
+  CATEGORIES, STORAGE_LOCATIONS, UNITS,
 } from '../lib/inventory';
 import { searchIngredients } from '../lib/typesense';
 import type { IngredientHit } from '../lib/typesense';
 import { useActivity } from '../context/ActivityContext';
+import { useInventory } from '../context/InventoryContext';
 import './InventoryPage.css';
 
 // ── helpers ───────────────────────────────────────────────────────
@@ -43,7 +44,7 @@ type View = 'vault' | 'burnlist';
 
 export default function InventoryPage() {
   const { addActivity } = useActivity();
-  const [items, setItems] = useState<InventoryItem[]>(seedInventory);
+  const { items, addItem, addItems, deleteItem } = useInventory();
   const [view, setView] = useState<View>('vault');
   const [filterCat, setFilterCat] = useState<Category | 'All'>('All');
   const [filterStatus, setFilterStatus] = useState<Status | 'All'>('All');
@@ -187,7 +188,7 @@ export default function InventoryPage() {
       status: calculateStatus(form.expiryDate),
     };
 
-    setItems((prev) => [newItem, ...prev]);
+    addItem(newItem);
     addActivity(`Inventory added: ${newItem.name} (${newItem.quantity} ${newItem.unit})`, 'inventory');
     // Auto-alert if already below threshold
     if (checkRestock(newItem.quantity, newItem.minThreshold)) {
@@ -201,7 +202,7 @@ export default function InventoryPage() {
   const handleDelete = (id: string) => {
     const target = items.find((i) => i.id === id);
     if (target) addActivity(`Inventory removed: ${target.name}`, 'inventory');
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    deleteItem(id);
   };
 
   const handleOCRUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -221,7 +222,7 @@ export default function InventoryPage() {
         minThreshold: 2,
         status: calculateStatus(p.expiryDate),
       }));
-      setItems((prev) => [...newItems, ...prev]);
+      addItems(newItems);
       addActivity(`Invoice scanned: ${newItems.length} item${newItems.length !== 1 ? 's' : ''} added`, 'inventory');
       setOcrLoading(false);
     }, 1800);
@@ -246,13 +247,6 @@ export default function InventoryPage() {
               style={{ display: 'none' }}
               onChange={handleOCRUpload}
             />
-            <button
-              className="inv-btn inv-btn--secondary"
-              onClick={() => fileRef.current?.click()}
-              disabled={ocrLoading}
-            >
-              {ocrLoading ? '⏳ Scanning...' : '📷 Upload Invoice'}
-            </button>
             <button
               className="inv-btn inv-btn--primary"
               onClick={() => { setShowForm(true); setFormError(''); }}
