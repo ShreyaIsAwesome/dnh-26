@@ -4,6 +4,7 @@ import {
   cycleStatus, isOverTurnTime, formatElapsed,
   SEED_TABLES, SHAPE_LIBRARY, STATUS_LABEL, TURN_TIME_ALERT_MS,
 } from '../lib/operations';
+import { useActivity } from '../context/ActivityContext';
 import './OperationsPage.css';
 
 // ── helpers ──────────────────────────────────────────────────────
@@ -104,6 +105,7 @@ function TableNode({ table, now, canvasRef, onToggle, onDragEnd, onDelete }: Tab
 // ── Main page ────────────────────────────────────────────────────
 
 export default function OperationsPage() {
+  const { addActivity } = useActivity();
   const [tables, setTables]       = useState<FloorTable[]>(SEED_TABLES);
   const [floorPlan, setFloorPlan] = useState<string | null>(null);
   const [now, setNow]             = useState(Date.now());
@@ -119,8 +121,18 @@ export default function OperationsPage() {
   // ── callbacks ──────────────────────────────────────────────────
 
   const handleToggle = useCallback((id: string) => {
-    setTables((prev) => prev.map((t) => t.id === id ? { ...t, ...cycleStatus(t) } : t));
-  }, []);
+    setTables((prev) => prev.map((t) => {
+      if (t.id !== id) return t;
+      const updated = { ...t, ...cycleStatus(t) };
+      const msgs: Record<TableStatus, string> = {
+        occupied:  `Table ${t.label} seated`,
+        dirty:     `Table ${t.label} cleared — needs busing`,
+        available: `Table ${t.label} cleaned and ready`,
+      };
+      addActivity(msgs[updated.status], 'operations');
+      return updated;
+    }));
+  }, [addActivity]);
 
   const handleDragEnd = useCallback((id: string, x: number, y: number) => {
     setTables((prev) => prev.map((t) => t.id === id ? { ...t, x, y } : t));
