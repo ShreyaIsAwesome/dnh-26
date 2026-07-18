@@ -1,5 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ActivityProvider } from './context/ActivityContext';
+import { InventoryProvider } from './context/InventoryContext';
+import { TodoProvider } from './context/TodoContext';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 
@@ -23,9 +26,15 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
+      <ActivityProvider>
+        <InventoryProvider>
+          <TodoProvider>
+            <AuthProvider>
+              <AppRoutes />
+            </AuthProvider>
+          </TodoProvider>
+        </InventoryProvider>
+      </ActivityProvider>
     </BrowserRouter>
   );
 }

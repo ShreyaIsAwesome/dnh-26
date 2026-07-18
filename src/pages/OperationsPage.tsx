@@ -4,6 +4,7 @@ import {
   cycleStatus, isOverTurnTime, formatElapsed,
   SEED_TABLES, SHAPE_LIBRARY, STATUS_LABEL, TURN_TIME_ALERT_MS,
 } from '../lib/operations';
+import { useActivity } from '../context/ActivityContext';
 import './OperationsPage.css';
 
 // ── helpers ──────────────────────────────────────────────────────
@@ -28,17 +29,21 @@ interface TableNodeProps {
   canvasRef: React.RefObject<HTMLDivElement | null>;
   onToggle: (id: string) => void;
   onDragEnd: (id: string, x: number, y: number) => void;
+  onResize:  (id: string, w: number, h: number, x: number, y: number) => void;
   onDelete: (id: string) => void;
 }
 
-function TableNode({ table, now, canvasRef, onToggle, onDragEnd, onDelete }: TableNodeProps) {
+const MIN_TABLE_SIZE = 40;
+type Corner = 'nw' | 'ne' | 'sw' | 'se';
+
+function TableNode({ table, now, canvasRef, onToggle, onDragEnd, onResize, onDelete }: TableNodeProps) {
   const ref = useRef<HTMLDivElement>(null!);
   const overTime = isOverTurnTime(table.seatedAt, now);
   const elapsed = table.seatedAt ? formatElapsed(table.seatedAt, now) : '';
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Let delete button handle its own click
-    if ((e.target as HTMLElement).closest('.ops-tbl-del')) return;
+    // Let delete / resize handles handle their own events
+    if ((e.target as HTMLElement).closest('.ops-tbl-del, .ops-resize-handle')) return;
     e.preventDefault();
 
     const startMouseX = e.clientX;
@@ -76,6 +81,60 @@ function TableNode({ table, now, canvasRef, onToggle, onDragEnd, onDelete }: Tab
     document.addEventListener('mouseup', onUp);
   };
 
+  const handleResizeMouseDown = (e: React.MouseEvent, corner: Corner) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const origW  = ref.current.offsetWidth;
+    const origH  = ref.current.offsetHeight;
+    const origTX = table.x;
+    const origTY = table.y;
+    const live = { w: origW, h: origH, x: origTX, y: origTY };
+
+    const onMove = (ev: MouseEvent) => {
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      let newW = origW, newH = origH, newX = origTX, newY = origTY;
+
+      if (corner === 'se') {
+        newW = Math.max(MIN_TABLE_SIZE, origW + dx);
+        newH = Math.max(MIN_TABLE_SIZE, origH + dy);
+      } else if (corner === 'sw') {
+        newW = Math.max(MIN_TABLE_SIZE, origW - dx);
+        newH = Math.max(MIN_TABLE_SIZE, origH + dy);
+        newX = origTX + (origW - newW);
+      } else if (corner === 'ne') {
+        newW = Math.max(MIN_TABLE_SIZE, origW + dx);
+        newH = Math.max(MIN_TABLE_SIZE, origH - dy);
+        newY = origTY + (origH - newH);
+      } else {
+        // nw
+        newW = Math.max(MIN_TABLE_SIZE, origW - dx);
+        newH = Math.max(MIN_TABLE_SIZE, origH - dy);
+        newX = origTX + (origW - newW);
+        newY = origTY + (origH - newH);
+      }
+
+      live.w = newW; live.h = newH; live.x = newX; live.y = newY;
+      if (ref.current) {
+        ref.current.style.width     = `${newW}px`;
+        ref.current.style.height    = `${newH}px`;
+        ref.current.style.transform = `translate(${newX}px, ${newY}px)`;
+      }
+    };
+
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      onResize(table.id, live.w, live.h, live.x, live.y);
+    };
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  };
+
   const statusClass = `ops-tbl--${table.status}`;
   const shapeClass  = `ops-tbl--${table.shape}`;
   const alertClass  = overTime ? 'ops-tbl--alert' : '';
@@ -84,7 +143,11 @@ function TableNode({ table, now, canvasRef, onToggle, onDragEnd, onDelete }: Tab
     <div
       ref={ref}
       className={['ops-tbl', shapeClass, statusClass, alertClass].filter(Boolean).join(' ')}
-      style={{ transform: `translate(${table.x}px, ${table.y}px)` }}
+      style={{
+        transform: `translate(${table.x}px, ${table.y}px)`,
+        ...(table.w != null ? { width:  `${table.w}px` } : {}),
+        ...(table.h != null ? { height: `${table.h}px` } : {}),
+      }}
       onMouseDown={handleMouseDown}
       title={`${table.label} · ${STATUS_LABEL[table.status]}${elapsed ? ` · ${elapsed}` : ''}`}
     >
@@ -97,6 +160,11 @@ function TableNode({ table, now, canvasRef, onToggle, onDragEnd, onDelete }: Tab
         onClick={(e) => { e.stopPropagation(); onDelete(table.id); }}
         aria-label="Remove table"
       >✕</button>
+      {/* Corner resize handles */}
+      <div className="ops-resize-handle ops-resize-handle--nw" onMouseDown={(e) => handleResizeMouseDown(e, 'nw')} />
+      <div className="ops-resize-handle ops-resize-handle--ne" onMouseDown={(e) => handleResizeMouseDown(e, 'ne')} />
+      <div className="ops-resize-handle ops-resize-handle--sw" onMouseDown={(e) => handleResizeMouseDown(e, 'sw')} />
+      <div className="ops-resize-handle ops-resize-handle--se" onMouseDown={(e) => handleResizeMouseDown(e, 'se')} />
     </div>
   );
 }
@@ -104,6 +172,7 @@ function TableNode({ table, now, canvasRef, onToggle, onDragEnd, onDelete }: Tab
 // ── Main page ────────────────────────────────────────────────────
 
 export default function OperationsPage() {
+  const { addActivity } = useActivity();
   const [tables, setTables]       = useState<FloorTable[]>(SEED_TABLES);
   const [floorPlan, setFloorPlan] = useState<string | null>(null);
   const [now, setNow]             = useState(Date.now());
@@ -119,11 +188,25 @@ export default function OperationsPage() {
   // ── callbacks ──────────────────────────────────────────────────
 
   const handleToggle = useCallback((id: string) => {
-    setTables((prev) => prev.map((t) => t.id === id ? { ...t, ...cycleStatus(t) } : t));
-  }, []);
+    setTables((prev) => prev.map((t) => {
+      if (t.id !== id) return t;
+      const updated = { ...t, ...cycleStatus(t) };
+      const msgs: Record<TableStatus, string> = {
+        occupied:  `Table ${t.label} seated`,
+        dirty:     `Table ${t.label} cleared — needs busing`,
+        available: `Table ${t.label} cleaned and ready`,
+      };
+      addActivity(msgs[updated.status], 'operations');
+      return updated;
+    }));
+  }, [addActivity]);
 
   const handleDragEnd = useCallback((id: string, x: number, y: number) => {
     setTables((prev) => prev.map((t) => t.id === id ? { ...t, x, y } : t));
+  }, []);
+
+  const handleResize = useCallback((id: string, w: number, h: number, x: number, y: number) => {
+    setTables((prev) => prev.map((t) => t.id === id ? { ...t, w, h, x, y } : t));
   }, []);
 
   const handleDelete = useCallback((id: string) => {
@@ -276,6 +359,7 @@ export default function OperationsPage() {
               canvasRef={canvasRef}
               onToggle={handleToggle}
               onDragEnd={handleDragEnd}
+              onResize={handleResize}
               onDelete={handleDelete}
             />
           ))}

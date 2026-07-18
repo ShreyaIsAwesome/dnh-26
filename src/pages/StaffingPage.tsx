@@ -6,6 +6,8 @@ import {
   formatHour, getWeekStart, getWeekDates,
   getRushPeriodForSlot, getActiveEmployees, getStationingPlan,
 } from '../lib/staffing';
+import { useActivity } from '../context/ActivityContext';
+import { useTodo } from '../context/TodoContext';
 import './StaffingPage.css';
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -274,6 +276,8 @@ function EmployeeModal({ onSave, onClose }: EmployeeModalProps) {
 // ── Main Page ────────────────────────────────────────────────────
 
 export default function StaffingPage() {
+  const { addActivity } = useActivity();
+  const { addOrder: todoAddOrder } = useTodo();
   const [employees,   setEmployees]   = useState<Employee[]>(SEED_EMPLOYEES);
   const [rushPeriods, setRushPeriods] = useState<RushPeriod[]>(SEED_RUSH_PERIODS);
   const [orders,      setOrders]      = useState<OnlineOrder[]>([]);
@@ -317,17 +321,21 @@ export default function StaffingPage() {
 
   const addRushPeriod = useCallback((r: Omit<RushPeriod, 'id'>) => {
     setRushPeriods(prev => [...prev, { id: newId(), ...r }]);
+    addActivity(`Rush hour set: ${r.label} on ${DAYS[r.day]} ${formatHour(r.startHour)}–${formatHour(r.endHour)}`, 'rush');
     setShowPeakModal(false);
-  }, []);
+  }, [addActivity]);
 
   const deleteRushPeriod = useCallback((id: string) => {
     setRushPeriods(prev => prev.filter(r => r.id !== id));
   }, []);
 
   const addOrder = useCallback((o: Omit<OnlineOrder, 'id'>) => {
+    const orderNum = `#ONL${newId().slice(-4).toUpperCase()}`;
     setOrders(prev => [...prev, { id: newId(), ...o }]);
+    addActivity(`Online order queued: ${o.label} (${o.prepMinutes} min prep)`, 'order');
+    todoAddOrder(orderNum, 'Online Order', o.label, 'online');
     setShowOrderModal(false);
-  }, []);
+  }, [addActivity, todoAddOrder]);
 
   const deleteOrder = useCallback((id: string) => {
     setOrders(prev => prev.filter(o => o.id !== id));
@@ -335,12 +343,15 @@ export default function StaffingPage() {
 
   const addEmployee = useCallback((emp: Omit<Employee, 'id'>) => {
     setEmployees(prev => [...prev, { id: newId(), ...emp }]);
+    addActivity(`Staff added: ${emp.name} (${emp.role})`, 'staff');
     setShowEmpModal(false);
-  }, []);
+  }, [addActivity]);
 
   const deleteEmployee = useCallback((id: string) => {
+    const target = employees.find(e => e.id === id);
+    if (target) addActivity(`Staff removed: ${target.name}`, 'staff');
     setEmployees(prev => prev.filter(e => e.id !== id));
-  }, []);
+  }, [addActivity, employees]);
 
   // Week label
   const weekLabel = (() => {
