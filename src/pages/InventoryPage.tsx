@@ -6,6 +6,7 @@ import {
 } from '../lib/inventory';
 import { searchIngredients } from '../lib/typesense';
 import type { IngredientHit } from '../lib/typesense';
+import { useActivity } from '../context/ActivityContext';
 import './InventoryPage.css';
 
 // ── helpers ───────────────────────────────────────────────────────
@@ -41,6 +42,7 @@ const BLANK_FORM = {
 type View = 'vault' | 'burnlist';
 
 export default function InventoryPage() {
+  const { addActivity } = useActivity();
   const [items, setItems] = useState<InventoryItem[]>(seedInventory);
   const [view, setView] = useState<View>('vault');
   const [filterCat, setFilterCat] = useState<Category | 'All'>('All');
@@ -110,6 +112,32 @@ export default function InventoryPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // ── Auto-alerts: low stock & expiring ────────────────────────
+  const alertedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    items.forEach((item) => {
+      const lowKey     = `low-${item.id}`;
+      const expKey     = `exp-${item.id}`;
+      const isLow      = checkRestock(item.quantity, item.minThreshold);
+      const isExpiring = item.status === 'Warning' || item.status === 'Expired';
+
+      if (isLow && !alertedRef.current.has(lowKey)) {
+        alertedRef.current.add(lowKey);
+        addActivity(`Low stock: ${item.name} (${item.quantity} ${item.unit} remaining)`, 'alert');
+      }
+      if (isExpiring && !alertedRef.current.has(expKey)) {
+        alertedRef.current.add(expKey);
+        const label = item.status === 'Expired' ? 'Expired' : 'Expiring soon';
+        addActivity(
+          `${label}: ${item.name} — ${new Date(item.expiryDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
+          'alert',
+        );
+      }
+    });
+  // We intentionally only want this to fire when items changes, addActivity is stable
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
+
   // ── derived lists ─────────────────────────────────────────────
 
   const restockAlerts = items.filter((i) => checkRestock(i.quantity, i.minThreshold));
@@ -160,13 +188,21 @@ export default function InventoryPage() {
     };
 
     setItems((prev) => [newItem, ...prev]);
+    addActivity(`Inventory added: ${newItem.name} (${newItem.quantity} ${newItem.unit})`, 'inventory');
+    // Auto-alert if already below threshold
+    if (checkRestock(newItem.quantity, newItem.minThreshold)) {
+      addActivity(`Low stock alert: ${newItem.name}`, 'alert');
+    }
     setForm(BLANK_FORM);
     setFormError('');
     setShowForm(false);
   };
 
-  const handleDelete = (id: string) =>
+  const handleDelete = (id: string) => {
+    const target = items.find((i) => i.id === id);
+    if (target) addActivity(`Inventory removed: ${target.name}`, 'inventory');
     setItems((prev) => prev.filter((i) => i.id !== id));
+  };
 
   const handleOCRUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -186,6 +222,7 @@ export default function InventoryPage() {
         status: calculateStatus(p.expiryDate),
       }));
       setItems((prev) => [...newItems, ...prev]);
+      addActivity(`Invoice scanned: ${newItems.length} item${newItems.length !== 1 ? 's' : ''} added`, 'inventory');
       setOcrLoading(false);
     }, 1800);
 
