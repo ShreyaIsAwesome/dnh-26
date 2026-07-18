@@ -55,7 +55,7 @@ interface TodoPageProps {
 
 // ── Component ────────────────────────────────────────────────────
 
-export default function TodoPage({ onNavigate }: TodoPageProps) {
+export default function TodoPage({ onNavigate: _onNavigate }: TodoPageProps) {
   const { items, deleteItem } = useInventory();
   const { orders, addOrder, completeOrder, removeOrder } = useTodo();
   const { addActivity } = useActivity();

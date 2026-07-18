@@ -1,16 +1,24 @@
 import Typesense from 'typesense';
 
-export const typesenseClient = new Typesense.Client({
-  nodes: [
-    {
-      host:     import.meta.env.VITE_TYPESENSE_HOST as string,
-      port:     Number(import.meta.env.VITE_TYPESENSE_PORT) || 443,
-      protocol: (import.meta.env.VITE_TYPESENSE_PROTOCOL as string) || 'https',
-    },
-  ],
-  apiKey:         import.meta.env.VITE_TYPESENSE_SEARCH_KEY as string,
-  connectionTimeoutSeconds: 5,
-});
+const typesenseHost = import.meta.env.VITE_TYPESENSE_HOST as string;
+const typesenseKey  = import.meta.env.VITE_TYPESENSE_SEARCH_KEY as string;
+
+// Without these env vars the Typesense constructor throws at import time,
+// which would crash the whole app — so fall back to a null client instead.
+export const typesenseClient =
+  typesenseHost && typesenseKey
+    ? new Typesense.Client({
+        nodes: [
+          {
+            host:     typesenseHost,
+            port:     Number(import.meta.env.VITE_TYPESENSE_PORT) || 443,
+            protocol: (import.meta.env.VITE_TYPESENSE_PROTOCOL as string) || 'https',
+          },
+        ],
+        apiKey:         typesenseKey,
+        connectionTimeoutSeconds: 5,
+      })
+    : null;
 
 export interface IngredientHit {
   id:       string;
@@ -27,7 +35,7 @@ export async function searchIngredients(
   query: string,
   limit = 8,
 ): Promise<IngredientHit[]> {
-  if (!query.trim()) return [];
+  if (!typesenseClient || !query.trim()) return [];
 
   try {
     const result = await typesenseClient

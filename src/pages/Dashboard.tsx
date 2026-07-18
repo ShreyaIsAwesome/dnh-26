@@ -11,17 +11,45 @@ import StaffingPage from './StaffingPage';
 import FeedbackPage from './FeedbackPage';
 import AIAssistantPage from './AIAssistantPage';
 import TodoPage from './TodoPage';
+import BudgetPage from './BudgetPage';
+import { loadRevenueData, loadCustomerData } from '../lib/revenue';
 import './Dashboard.css';
 
-type Tab = 'dashboard' | 'inventory' | 'operations' | 'calendar' | 'feedback' | 'ai-assistant' | 'todo';
+type Tab = 'dashboard' | 'inventory' | 'operations' | 'budget' | 'calendar' | 'feedback' | 'ai-assistant' | 'todo';
 type ChartType = 'revenue' | 'customers';
 
 const stats = [
-  { label: 'Total Revenue',    value: '$24,830', change: '+12.4%', up: true,  action: 'chart-revenue'   },
-  { label: 'Active Customers', value: '1,284',   change: '+5.7%',  up: true,  action: 'chart-customers' },
-  { label: 'Open Orders',      value: '38',       change: '-2.1%', up: false, action: 'tab-operations'  },
-  { label: 'Staff On Shift',   value: '9',        change: '0%',    up: true,  action: 'tab-calendar'    },
+  { label: 'Total Revenue',    value: '$24,830', change: '+12.4%', up: true,  suffix: 'vs last week', action: 'chart-revenue'   },
+  { label: 'Active Customers', value: '1,284',   change: '+5.7%',  up: true,  suffix: 'vs last week', action: 'chart-customers' },
+  { label: 'Open Orders',      value: '38',       change: '-2.1%', up: false, suffix: 'vs last week', action: 'tab-operations'  },
+  { label: 'Staff On Shift',   value: '9',        change: '0%',    up: true,  suffix: 'vs last week', action: 'tab-calendar'    },
 ];
+
+/** Swap the sample stats for real numbers once sheets are uploaded. */
+function statsWithUploadedRevenue() {
+  const uploads = [
+    // Revenue accumulates across periods, so show the sum.
+    { label: 'Total Revenue', points: loadRevenueData(), stat: 'sum' as const, prefix: '$' },
+    // Customer counts are snapshots, so show the latest period.
+    { label: 'Active Customers', points: loadCustomerData(), stat: 'last' as const, prefix: '' },
+  ];
+  return stats.map((s) => {
+    const upload = uploads.find((u) => u.label === s.label);
+    if (!upload || upload.points.length === 0) return s;
+    const { points, stat, prefix } = upload;
+    const last = points[points.length - 1].value;
+    const prev = points.length > 1 ? points[points.length - 2].value : null;
+    const pct = prev ? ((last - prev) / prev) * 100 : 0;
+    const shown = stat === 'sum' ? points.reduce((sum, p) => sum + p.value, 0) : last;
+    return {
+      ...s,
+      value: prefix + Math.round(shown).toLocaleString(),
+      change: `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`,
+      up: pct >= 0,
+      suffix: 'vs prior period',
+    };
+  });
+}
 
 const TYPE_ICON: Record<ActivityType, string> = {
   order:      '📦',
@@ -39,6 +67,7 @@ const navItems: { label: string; tab: Tab }[] = [
   { label: 'Task Board',   tab: 'todo'         },
   { label: 'Inventory',    tab: 'inventory'    },
   { label: 'Operations',   tab: 'operations'   },
+  { label: 'Budget',       tab: 'budget'       },
   { label: 'Calendar',     tab: 'calendar'     },
   { label: 'Feedback',     tab: 'feedback'     },
   { label: 'AI Assistant', tab: 'ai-assistant' },
@@ -148,6 +177,7 @@ export default function Dashboard() {
     if (activeTab === 'todo')         return <TodoPage onNavigate={(tab) => setActiveTab(tab as Tab)} />;
     if (activeTab === 'inventory')    return <InventoryPage />;
     if (activeTab === 'operations')   return <OperationsPage />;
+    if (activeTab === 'budget')       return <BudgetPage />;
     if (activeTab === 'calendar')     return <StaffingPage />;
     if (activeTab === 'feedback')     return <FeedbackPage />;
     if (activeTab === 'ai-assistant') return <AIAssistantPage />;
@@ -167,7 +197,7 @@ export default function Dashboard() {
 
         {/* Stats grid */}
         <section className="stats-grid">
-          {stats.map((s) => (
+          {statsWithUploadedRevenue().map((s) => (
             <div
               className="stat-card stat-card--clickable"
               key={s.label}
@@ -178,7 +208,7 @@ export default function Dashboard() {
             >
               <span className="stat-label">{s.label}</span>
               <span className="stat-value">{s.value}</span>
-              <span className={`stat-change ${s.up ? 'up' : 'down'}`}>{s.change} vs last week</span>
+              <span className={`stat-change ${s.up ? 'up' : 'down'}`}>{s.change} {s.suffix}</span>
             </div>
           ))}
         </section>
@@ -209,6 +239,9 @@ export default function Dashboard() {
               >📦 New Order</button>
               <button className="quick-btn quick-btn--primary" onClick={() => setActiveTab('todo')}>
                 ✓ Task Board
+              </button>
+              <button className="quick-btn" onClick={() => setActiveTab('budget')}>
+                💰 Upload Budget
               </button>
               <button className="quick-btn" onClick={() => setActiveTab('inventory')}>
                 🥦 Update Stock

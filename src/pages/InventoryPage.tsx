@@ -52,7 +52,7 @@ export default function InventoryPage() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(BLANK_FORM);
   const [formError, setFormError] = useState('');
-  const [ocrLoading, setOcrLoading] = useState(false);
+  const [, setOcrLoading] = useState(false);
   const [ocrError, setOcrError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
