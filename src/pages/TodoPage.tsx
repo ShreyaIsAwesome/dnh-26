@@ -13,6 +13,7 @@ const SOURCE_LABEL: Record<OrderSource, string> = {
   doordash: 'DoorDash',
   ubereats: 'UberEats',
   grubhub:  'Grubhub',
+  online:   'Online',
 };
 
 const SOURCE_CLASS: Record<OrderSource, string> = {
@@ -20,6 +21,7 @@ const SOURCE_CLASS: Record<OrderSource, string> = {
   doordash: 'source-doordash',
   ubereats: 'source-ubereats',
   grubhub:  'source-grubhub',
+  online:   'source-online',
 };
 
 const DAILY_TASKS_SEED = [
@@ -366,6 +368,7 @@ export default function TodoPage({ onNavigate }: TodoPageProps) {
                     <option value="doordash">DoorDash</option>
                     <option value="ubereats">UberEats</option>
                     <option value="grubhub">Grubhub</option>
+                    <option value="online">Online</option>
                   </select>
                   <button className="todo-btn btn-done" type="submit">Add Order</button>
                 </div>

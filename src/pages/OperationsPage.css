@@ -324,6 +324,26 @@
 .ops-tbl:hover .ops-tbl-del { display: flex; }
 .ops-tbl-del:hover { background: #e74c3c; color: #fff; border-color: #e74c3c; }
 
+/* ── Corner resize handles ── */
+.ops-resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border: 2px solid #888;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 11;
+}
+
+.ops-tbl:hover .ops-resize-handle { opacity: 1; }
+
+.ops-resize-handle--nw { top:    -5px; left:  -5px; cursor: nw-resize; }
+.ops-resize-handle--ne { top:    -5px; right: -5px; cursor: ne-resize; }
+.ops-resize-handle--sw { bottom: -5px; left:  -5px; cursor: sw-resize; }
+.ops-resize-handle--se { bottom: -5px; right: -5px; cursor: se-resize; }
+
 /* Shapes */
 .ops-tbl--square-2 { width: 64px;  height: 64px;  border-radius: 10px; }
 .ops-tbl--round-4  { width: 72px;  height: 72px;  border-radius: 50%; }

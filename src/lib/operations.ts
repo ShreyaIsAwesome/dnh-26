@@ -12,6 +12,8 @@ export interface FloorTable {
   capacity: number;
   x: number;
   y: number;
+  w?: number;
+  h?: number;
   status: TableStatus;
   seatedAt: number | null;
 }
