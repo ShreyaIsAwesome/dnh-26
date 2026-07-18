@@ -459,3 +459,56 @@
   .inv-row-meta { gap: 14px; }
   .inv-meta-item { min-width: 60px; }
 }
+
+/* ── Typesense Autocomplete ───────────────────────────────────── */
+.inv-autocomplete-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.inv-suggestions {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 400;
+  background: #ffffff;
+  border: 1.5px solid #ddd;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.13);
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.inv-suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.1s;
+  gap: 8px;
+}
+
+.inv-suggestion-item:hover,
+.inv-suggestion-item.active {
+  background: #f5f5f8;
+}
+
+.inv-suggestion-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1a1a1e;
+}
+
+.inv-suggestion-meta {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #aaa;
+  white-space: nowrap;
+  text-transform: uppercase;
+}

@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { InventoryItem, Category, Status } from '../lib/inventory';
 import {
   calculateStatus, checkRestock, parseInvoice,
   seedInventory, CATEGORIES, STORAGE_LOCATIONS, UNITS,
 } from '../lib/inventory';
+import { searchIngredients } from '../lib/typesense';
+import type { IngredientHit } from '../lib/typesense';
 import './InventoryPage.css';
 
 // ── helpers ───────────────────────────────────────────────────────
@@ -50,6 +52,63 @@ export default function InventoryPage() {
   const [ocrLoading, setOcrLoading] = useState(false);
   const [ocrError, setOcrError] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
+
+  // ── Typesense autocomplete ────────────────────────────────────
+  const [suggestions, setSuggestions] = useState<IngredientHit[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeSuggestion, setActiveSuggestion] = useState(-1);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  const fetchSuggestions = useCallback((query: string) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!query.trim()) { setSuggestions([]); setShowSuggestions(false); return; }
+    debounceRef.current = setTimeout(async () => {
+      const hits = await searchIngredients(query);
+      setSuggestions(hits);
+      setShowSuggestions(hits.length > 0);
+      setActiveSuggestion(-1);
+    }, 200);
+  }, []);
+
+  const selectSuggestion = (hit: IngredientHit) => {
+    setForm((f) => ({
+      ...f,
+      name:     hit.name,
+      category: (hit.category as Category) ?? f.category,
+      unit:     hit.unit ?? f.unit,
+    }));
+    setSuggestions([]);
+    setShowSuggestions(false);
+    setActiveSuggestion(-1);
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveSuggestion((i) => Math.min(i + 1, suggestions.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveSuggestion((i) => Math.max(i - 1, 0));
+    } else if (e.key === 'Enter' && activeSuggestion >= 0) {
+      e.preventDefault();
+      selectSuggestion(suggestions[activeSuggestion]);
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+    }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (nameInputRef.current && !nameInputRef.current.closest('.inv-autocomplete-wrapper')?.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   // ── derived lists ─────────────────────────────────────────────
 
@@ -285,7 +344,37 @@ export default function InventoryPage() {
               <div className="inv-form-row">
                 <div className="inv-field">
                   <label className="inv-label">INGREDIENT NAME *</label>
-                  <input className="inv-input" type="text" value={form.name} onChange={(e) => handleFormChange('name', e.target.value)} required />
+                  <div className="inv-autocomplete-wrapper">
+                    <input
+                      ref={nameInputRef}
+                      className="inv-input"
+                      type="text"
+                      value={form.name}
+                      autoComplete="off"
+                      onChange={(e) => {
+                        handleFormChange('name', e.target.value);
+                        fetchSuggestions(e.target.value);
+                      }}
+                      onKeyDown={handleNameKeyDown}
+                      onFocus={() => form.name.trim() && suggestions.length > 0 && setShowSuggestions(true)}
+                      placeholder="Start typing to search…"
+                      required
+                    />
+                    {showSuggestions && suggestions.length > 0 && (
+                      <ul className="inv-suggestions">
+                        {suggestions.map((hit, i) => (
+                          <li
+                            key={hit.id}
+                            className={`inv-suggestion-item${i === activeSuggestion ? ' active' : ''}`}
+                            onMouseDown={() => selectSuggestion(hit)}
+                          >
+                            <span className="inv-suggestion-name">{hit.name}</span>
+                            <span className="inv-suggestion-meta">{hit.category}{hit.unit ? ` · ${hit.unit}` : ''}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </div>
                 <div className="inv-field">
                   <label className="inv-label">CATEGORY</label>
