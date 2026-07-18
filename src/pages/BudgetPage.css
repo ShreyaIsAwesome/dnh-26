@@ -1,0 +1,219 @@
+/* ================================================================
+   OperON – Budget Page Styles
+   ================================================================ */
+
+.budget-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Upload dropzone ── */
+.budget-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 24px;
+  background: #ffffff;
+  border: 2px dashed #d0d0d6;
+  border-radius: 16px;
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.budget-dropzone.dragging {
+  border-color: #1a1a1e;
+  background: #f0f0f4;
+}
+
+.budget-dropzone-icon {
+  font-size: 36px;
+}
+
+.budget-dropzone-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1e;
+  line-height: 1.5;
+}
+
+.budget-dropzone-hint {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #8a8a92;
+}
+
+.budget-upload-btn {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #1a1a1e;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 28px;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.budget-upload-btn:hover {
+  opacity: 0.85;
+}
+
+.budget-upload-btn:active {
+  transform: scale(0.98);
+}
+
+.budget-status {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1d8a4a;
+}
+
+.budget-error {
+  font-size: 13px;
+  font-weight: 600;
+  color: #c23b3b;
+  max-width: 420px;
+}
+
+.budget-clear-btn {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #c23b3b;
+  background: none;
+  border: 1px solid #e3c4c4;
+  border-radius: 10px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.budget-clear-btn:hover {
+  background: #fbeaea;
+}
+
+/* ── Format explainer ── */
+.budget-format-help {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 22px;
+}
+
+.budget-format-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #55555e;
+  margin: 0 0 8px;
+}
+
+.budget-format-text {
+  font-size: 13px;
+  color: #55555e;
+  line-height: 1.6;
+  margin: 0 0 12px;
+  max-width: 640px;
+}
+
+.budget-example-scroll {
+  overflow-x: auto;
+}
+
+.budget-example-table {
+  border-collapse: collapse;
+  font-size: 12.5px;
+  background: #f7f7f9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.budget-example-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #8a8a92;
+  padding: 7px 16px;
+  border-bottom: 1px solid #e8e8ec;
+}
+
+.budget-example-table td {
+  padding: 7px 16px;
+  border-bottom: 1px solid #ececf0;
+  color: #2a2a30;
+  white-space: nowrap;
+}
+
+.budget-example-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Summary + panels ── */
+.stat-value--small {
+  font-size: 18px;
+}
+
+.budget-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 1100px) {
+  .budget-panels {
+    grid-template-columns: 1fr;
+  }
+}
+
+.budget-table-scroll {
+  overflow-y: auto;
+  max-height: 320px;
+}
+
+.budget-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.budget-table th {
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #8a8a92;
+  padding: 8px 10px;
+  border-bottom: 1px solid #ececf0;
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+}
+
+.budget-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #f2f2f5;
+  color: #2a2a30;
+}
+
+.budget-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.budget-cat-pill {
+  display: inline-block;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #44444c;
+  background: #efeff3;
+  border-radius: 999px;
+  padding: 3px 10px;
+}
