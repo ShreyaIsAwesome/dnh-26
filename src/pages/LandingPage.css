@@ -1,0 +1,228 @@
+/* ================================================================
+   OperON – Landing Page Styles
+   ================================================================ */
+
+/* ---------- Layout wrapper ---------- */
+.landing-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+}
+
+/* ---------- Background: bokeh café photo ---------- */
+.bg-image {
+  position: absolute;
+  inset: -30px; /* oversize so blurred edges don't show */
+  background-image: url('https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=1920&q=80');
+  background-size: cover;
+  background-position: center;
+  filter: blur(5px) saturate(1.1) brightness(0.9);
+  z-index: 0;
+}
+
+/* ---------- Dark cinematic overlay ---------- */
+.bg-darken {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    rgba(12, 8, 4, 0.55) 0%,
+    rgba(20, 14, 6, 0.35) 55%,
+    rgba(10, 6, 2, 0.15) 100%
+  );
+  z-index: 1;
+}
+
+/* ---------- Content row ---------- */
+.landing-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 6% 0 8%;
+  gap: 48px;
+}
+
+/* ================================================================
+   Left Side
+   ================================================================ */
+.landing-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 24px;
+  max-width: 680px;
+}
+
+.brand-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(72px, 11.5vw, 172px);
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -3px;
+  line-height: 0.95;
+  margin: 0;
+  /* Subtle text shadow for depth */
+  text-shadow:
+    0 4px 32px rgba(0, 0, 0, 0.45),
+    0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.brand-tagline {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: clamp(11px, 1.25vw, 20px);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  line-height: 1.9;
+  margin: 0;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ================================================================
+   Right Side – Card
+   ================================================================ */
+.landing-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 32px 0;
+}
+
+.info-card {
+  backdrop-filter: blur(2px);
+  border-radius: 28px;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.32),
+    0 8px 24px rgba(0, 0, 0, 0.16),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+  padding: 44px 40px 40px;
+  width: clamp(360px, 34vw, 500px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ---------- Card header ---------- */
+.card-header {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-align: center;
+  color: #1c1c1e;
+  text-transform: uppercase;
+  margin: 0 0 28px 0;
+}
+
+/* ---------- Card bullet list ---------- */
+.card-bullets {
+  flex: 1;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 36px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.card-bullets li {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 15px;
+  color: #3c3c43;
+  padding-left: 20px;
+  position: relative;
+  line-height: 1.5;
+  opacity: 0.88;
+}
+
+.card-bullets li::before {
+  content: '–';
+  position: absolute;
+  left: 0;
+  color: #acacb4;
+  font-weight: 400;
+}
+
+/* ---------- Pill buttons ---------- */
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.btn-pill {
+  width: 100%;
+  padding: 15px 24px;
+  border-radius: 50px;
+  border: 1.5px solid #d1d1d6;
+  background: linear-gradient(180deg, #f7f7f7 0%, #e8e8ec 100%);
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #1c1c1e;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.14s ease;
+  user-select: none;
+}
+
+.btn-pill:hover {
+  background: linear-gradient(180deg, #efefef 0%, #dcdce0 100%);
+  border-color: #b0b0b8;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.13);
+  transform: translateY(-2px);
+}
+
+.btn-pill:active {
+  transform: translateY(0px);
+  box-shadow: none;
+  background: linear-gradient(180deg, #e5e5e8 0%, #d5d5d9 100%);
+}
+
+.btn-pill:focus-visible {
+  outline: 2px solid #1c1c1e;
+  outline-offset: 3px;
+}
+
+/* ================================================================
+   Responsive – tablet / smaller screens
+   ================================================================ */
+@media (max-width: 900px) {
+  .landing-content {
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px 6% 40px;
+    gap: 36px;
+  }
+
+  .landing-left {
+    align-items: center;
+    text-align: center;
+  }
+
+  .brand-tagline {
+    text-align: center;
+  }
+
+  .landing-right {
+    padding: 0;
+  }
+
+  .info-card {
+    width: min(380px, 90vw);
+  }
+}
