@@ -2,7 +2,6 @@ import { useState, useCallback, useMemo } from 'react';
 import type { Employee, EmployeeRole, OnlineOrder, RushPeriod } from '../lib/staffing';
 import {
   DAYS, HOURS, HOUR_START, HOUR_HEIGHT, ROLES, ROLE_COLORS, EMP_STRIP_W,
-  SEED_EMPLOYEES, SEED_RUSH_PERIODS,
   formatHour, getWeekStart, getWeekDates,
   getRushPeriodForSlot, getActiveEmployees, getStationingPlan,
 } from '../lib/staffing';
