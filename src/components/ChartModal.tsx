@@ -74,7 +74,7 @@ export default function ChartModal({ type, onClose }: ChartModalProps) {
               width={74}
             />
             <Tooltip
-              formatter={(value: number) => [format(value), title.split(' ')[0] + ' ' + title.split(' ')[1]]}
+              formatter={(value) => [format(value as number), title.split(' ')[0] + ' ' + title.split(' ')[1]]}
               contentStyle={{
                 borderRadius: '10px',
                 border: '1px solid #e8e8ec',
