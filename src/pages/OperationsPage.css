@@ -415,6 +415,37 @@
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 900px) {
-  .ops-sidebar { display: none; }
-  .ops-canvas  { margin-left: 0; }
+  /* Stack: sidebar becomes a compact strip above the floor plan */
+  .ops-body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .ops-sidebar {
+    width: 100%;
+    padding: 12px 0;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    overflow-y: visible;
+    flex-shrink: 0;
+  }
+
+  .ops-lib {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .ops-lib-btn { flex: 1 1 40%; }
+
+  .ops-canvas {
+    margin-left: 0;
+    min-height: 380px;
+    flex-shrink: 0;
+  }
+
+  .ops-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
 }

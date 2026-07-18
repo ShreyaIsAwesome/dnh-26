@@ -573,3 +573,32 @@
   padding: 24px 0;
   font-weight: 600;
 }
+
+/* ── Mobile ───────────────────────────────────────────────────── */
+@media (max-width: 800px) {
+  .fb-wrapper {
+    flex-direction: column;
+    height: auto;
+    overflow: visible;
+  }
+
+  .fb-left-sidebar,
+  .fb-right-sidebar {
+    width: 100%;
+    padding: 0 0 16px;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1.5px solid #eee;
+    overflow-y: visible;
+  }
+
+  .fb-right-sidebar {
+    border-bottom: none;
+    padding-top: 16px;
+  }
+
+  .fb-center {
+    padding: 16px 0;
+    overflow-y: visible;
+  }
+}

@@ -225,6 +225,7 @@
   box-shadow: 0 1px 6px rgba(0,0,0,0.06);
   transition: box-shadow 0.15s;
   min-height: 68px;
+  flex-shrink: 0; /* rows must not be crushed by the scrollable list */
 }
 
 .inv-row:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); }
@@ -458,6 +459,8 @@
 @media (max-width: 700px) {
   .inv-row-meta { gap: 14px; }
   .inv-meta-item { min-width: 60px; }
+  .inv-row-name { min-width: 0; width: 100%; }
+  .inv-row-main { padding: 12px 14px; gap: 10px; }
 }
 
 /* ── Typesense Autocomplete ───────────────────────────────────── */

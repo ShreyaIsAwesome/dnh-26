@@ -127,6 +127,10 @@
 
 .budget-example-scroll {
   overflow-x: auto;
+  max-width: 100%;
+  align-self: stretch;
+  display: flex;
+  justify-content: safe center;
 }
 
 .budget-example-table {

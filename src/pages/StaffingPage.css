@@ -708,3 +708,26 @@
 .stf-day-chip:hover:not(.stf-day-chip--on) {
   background: #eee;
 }
+
+/* ── Mobile ───────────────────────────────────────────────────── */
+@media (max-width: 800px) {
+  .stf-body {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .stf-sidebar {
+    width: 100%;
+    padding: 12px 0;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    overflow-y: visible;
+    flex-shrink: 0;
+  }
+
+  /* Week grid keeps its full width and scrolls sideways by touch */
+  .stf-calendar-scroll {
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+}

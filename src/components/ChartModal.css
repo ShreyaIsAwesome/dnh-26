@@ -20,11 +20,17 @@
   background: #ffffff;
   border-radius: 22px;
   padding: 40px 40px 36px;
-  width: clamp(360px, 55vw, 640px);
+  width: min(max(360px, 55vw), 640px, 96vw);
+  max-height: 92dvh;
+  overflow-y: auto;
   box-shadow:
     0 32px 80px rgba(0, 0, 0, 0.25),
     0 8px 24px rgba(0, 0, 0, 0.12);
   animation: slideUp 0.22s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+@media (max-width: 480px) {
+  .chart-card { padding: 28px 18px 24px; }
 }
 
 @keyframes slideUp {
