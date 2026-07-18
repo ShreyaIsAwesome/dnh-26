@@ -1,0 +1,285 @@
+/* ================================================================
+   OrdersPage.css
+   ================================================================ */
+
+.ord-wrapper {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+
+.ord-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ord-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a1a1e;
+  margin: 0 0 6px;
+  letter-spacing: -0.5px;
+}
+
+.ord-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.ord-sub-pill {
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: #f0f0f3;
+  color: #666;
+}
+
+.ord-sub-pill--pending { background: #fef3c7; color: #92400e; }
+.ord-sub-pill--done    { background: #d1fae5; color: #065f46; }
+
+/* ── Buttons ─────────────────────────────────────────────────────── */
+
+.ord-btn {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.12s, background 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+.ord-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,.1); }
+
+.ord-btn--primary { background: #1a1a1e; color: #fff; }
+.ord-btn--primary:hover { background: #333; }
+
+/* ── Add form ────────────────────────────────────────────────────── */
+
+.ord-add-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 16px 20px;
+  background: #fafafa;
+  border: 1.5px solid #e8e8ec;
+  border-radius: 14px;
+}
+
+.ord-add-input {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 13px;
+  padding: 9px 13px;
+  border: 1.5px solid #e0e0e3;
+  border-radius: 9px;
+  outline: none;
+  flex: 1;
+  min-width: 160px;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+.ord-add-input:focus { border-color: #1a1a1e; }
+
+.ord-add-select {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 12.5px;
+  padding: 9px 13px;
+  border: 1.5px solid #e0e0e3;
+  border-radius: 9px;
+  outline: none;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.ord-add-select:focus { border-color: #1a1a1e; }
+
+/* ── Filters ─────────────────────────────────────────────────────── */
+
+.ord-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.ord-filter-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ord-filter-btn {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #e0e0e3;
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.ord-filter-btn:hover { background: #f5f5f7; border-color: #ccc; }
+.ord-filter-btn.active {
+  background: #1a1a1e;
+  color: #fff;
+  border-color: #1a1a1e;
+}
+
+.ord-filter-btn--status.active { background: #1a1a1e; border-color: #1a1a1e; color: #fff; }
+
+/* ── Orders list ─────────────────────────────────────────────────── */
+
+.ord-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ord-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  font-size: 14px;
+  color: #aaa;
+  background: #fafafa;
+  border: 1.5px dashed #e0e0e3;
+  border-radius: 14px;
+}
+
+/* ── Order row ───────────────────────────────────────────────────── */
+
+.ord-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #fff;
+  border: 1px solid #f0f0f2;
+  border-radius: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,.04);
+  transition: box-shadow 0.15s;
+}
+.ord-row:hover { box-shadow: 0 3px 12px rgba(0,0,0,.08); }
+
+.ord-row--done {
+  opacity: 0.6;
+  background: #fafafa;
+}
+
+.ord-row-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ord-row-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ord-row-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1e;
+}
+
+.ord-row-customer {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.ord-row-items {
+  font-size: 12.5px;
+  color: #777;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ord-row-time {
+  font-size: 11px;
+  color: #bbb;
+}
+
+/* Source & status tags */
+.ord-source-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.source-manual   { background: #f0f0f3; color: #555; }
+.source-doordash { background: #fff1f0; color: #c23b22; }
+.source-ubereats { background: #f0fdf4; color: #15803d; }
+.source-grubhub  { background: #fef3c7; color: #92400e; }
+.source-online   { background: #eff6ff; color: #1d4ed8; }
+
+.ord-completed-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 20px;
+  background: #d1fae5;
+  color: #065f46;
+}
+
+/* Row action buttons */
+.ord-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.ord-action-btn {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 13px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.1s, background 0.12s;
+}
+.ord-action-btn:hover { transform: translateY(-1px); }
+
+.ord-action-btn--complete {
+  background: #1a1a1e;
+  color: #fff;
+}
+.ord-action-btn--complete:hover { background: #333; }
+
+.ord-action-btn--remove {
+  background: #f0f0f3;
+  color: #888;
+  padding: 6px 10px;
+}
+.ord-action-btn--remove:hover { background: #fee2e2; color: #991b1b; }

@@ -361,7 +361,8 @@
 }
 
 .dash-order-input,
-.dash-order-textarea {
+.dash-order-textarea,
+.dash-order-select {
   font-family: 'Space Grotesk', system-ui, sans-serif;
   font-size: 13.5px;
   padding: 11px 13px;
@@ -377,7 +378,8 @@
 }
 
 .dash-order-input:focus,
-.dash-order-textarea:focus { border-color: #555; }
+.dash-order-textarea:focus,
+.dash-order-select:focus { border-color: #555; }
 
 .dash-order-input--readonly {
   color: #aaa;

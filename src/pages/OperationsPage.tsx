@@ -2,9 +2,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import type { FloorTable, TableStatus, TableShape } from '../lib/operations';
 import {
   cycleStatus, isOverTurnTime, formatElapsed,
-  SEED_TABLES, SHAPE_LIBRARY, STATUS_LABEL, TURN_TIME_ALERT_MS,
+  SHAPE_LIBRARY, STATUS_LABEL, TURN_TIME_ALERT_MS,
 } from '../lib/operations';
 import { useActivity } from '../context/ActivityContext';
+import { useOperations } from '../context/OperationsContext';
 import './OperationsPage.css';
 
 // ── helpers ──────────────────────────────────────────────────────
@@ -173,8 +174,7 @@ function TableNode({ table, now, canvasRef, onToggle, onDragEnd, onResize, onDel
 
 export default function OperationsPage() {
   const { addActivity } = useActivity();
-  const [tables, setTables]       = useState<FloorTable[]>(SEED_TABLES);
-  const [floorPlan, setFloorPlan] = useState<string | null>(null);
+  const { tables, setTables, floorPlan, setFloorPlan } = useOperations();
   const [now, setNow]             = useState(Date.now());
   const canvasRef = useRef<HTMLDivElement>(null);
   const fileRef   = useRef<HTMLInputElement>(null);

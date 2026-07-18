@@ -93,29 +93,7 @@ export default function BudgetPage() {
         {error && <p className="budget-error">{error}</p>}
       </div>
 
-      {/* Format explainer */}
-      <div className="budget-format-help">
-        <p className="budget-format-title">How your sheet is read</p>
-        <p className="budget-format-text">
-          The first row must be headers. We look for an <strong>item column</strong> (named item,
-          name, description…), a <strong>category column</strong> (category, type, group…), an{' '}
-          <strong>amount column</strong> (amount, cost, price, total…), and optionally a{' '}
-          <strong>date column</strong>. Extra columns are ignored, rows without an amount are
-          skipped, and every sheet in the workbook is scanned. For example:
-        </p>
-        <div className="budget-example-scroll">
-          <table className="budget-example-table">
-            <thead>
-              <tr><th>Item</th><th>Category</th><th>Date</th><th>Amount</th></tr>
-            </thead>
-            <tbody>
-              <tr><td>Oat Milk</td><td>Dairy</td><td>2026-07-01</td><td>$1,240.50</td></tr>
-              <tr><td>Chicken Breast</td><td>Meat</td><td>2026-07-02</td><td>$2,830</td></tr>
-              <tr><td>Napkins</td><td>Supplies</td><td>2026-07-03</td><td>$190.25</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Format explainer — always shown, but moved below data when entries exist */}
 
       {entries.length > 0 && (
         <>
@@ -182,6 +160,30 @@ export default function BudgetPage() {
           </div>
         </>
       )}
+
+      {/* Format explainer – always at the bottom */}
+      <div className="budget-format-help">
+        <p className="budget-format-title">How your sheet is read</p>
+        <p className="budget-format-text">
+          The first row must be headers. We look for an <strong>item column</strong> (named item,
+          name, description…), a <strong>category column</strong> (category, type, group…), an{' '}
+          <strong>amount column</strong> (amount, cost, price, total…), and optionally a{' '}
+          <strong>date column</strong>. Extra columns are ignored, rows without an amount are
+          skipped, and every sheet in the workbook is scanned. For example:
+        </p>
+        <div className="budget-example-scroll">
+          <table className="budget-example-table">
+            <thead>
+              <tr><th>Item</th><th>Category</th><th>Date</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Oat Milk</td><td>Dairy</td><td>2026-07-01</td><td>$1,240.50</td></tr>
+              <tr><td>Chicken Breast</td><td>Meat</td><td>2026-07-02</td><td>$2,830</td></tr>
+              <tr><td>Napkins</td><td>Supplies</td><td>2026-07-03</td><td>$190.25</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

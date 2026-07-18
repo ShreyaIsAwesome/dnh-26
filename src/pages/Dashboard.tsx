@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useActivity, formatTimeAgo } from '../context/ActivityContext';
 import type { ActivityType } from '../context/ActivityContext';
 import { useTodo } from '../context/TodoContext';
+import type { OrderSource } from '../context/TodoContext';
+import { useStaffing } from '../context/StaffingContext';
 import ChartModal from '../components/ChartModal';
 import InventoryPage from './InventoryPage';
 import OperationsPage from './OperationsPage';
@@ -11,11 +13,12 @@ import StaffingPage from './StaffingPage';
 import FeedbackPage from './FeedbackPage';
 import AIAssistantPage from './AIAssistantPage';
 import TodoPage from './TodoPage';
+import OrdersPage from './OrdersPage';
 import BudgetPage from './BudgetPage';
 import { loadRevenueData, loadCustomerData } from '../lib/revenue';
 import './Dashboard.css';
 
-type Tab = 'dashboard' | 'inventory' | 'operations' | 'budget' | 'calendar' | 'feedback' | 'ai-assistant' | 'todo';
+type Tab = 'dashboard' | 'inventory' | 'operations' | 'budget' | 'calendar' | 'feedback' | 'ai-assistant' | 'todo' | 'orders';
 type ChartType = 'revenue' | 'customers';
 
 const stats = [
@@ -64,6 +67,7 @@ const TYPE_ICON: Record<ActivityType, string> = {
 
 const navItems: { label: string; tab: Tab }[] = [
   { label: 'Dashboard',    tab: 'dashboard'    },
+  { label: 'Orders',       tab: 'orders'       },
   { label: 'Task Board',   tab: 'todo'         },
   { label: 'Inventory',    tab: 'inventory'    },
   { label: 'Operations',   tab: 'operations'   },
@@ -78,7 +82,7 @@ const navItems: { label: string; tab: Tab }[] = [
 let orderCounter = 1043;
 
 interface NewOrderModalProps {
-  onSave: (orderId: string, customer: string, items: string) => void;
+  onSave: (orderId: string, customer: string, items: string, source: OrderSource) => void;
   onClose: () => void;
 }
 
@@ -86,6 +90,7 @@ function NewOrderModal({ onSave, onClose }: NewOrderModalProps) {
   const orderId  = `#${orderCounter}`;
   const [customer, setCustomer] = useState('');
   const [items,    setItems]    = useState('');
+  const [source,   setSource]   = useState<OrderSource>('manual');
   const [error,    setError]    = useState('');
   const firstRef = useRef<HTMLInputElement>(null);
 
@@ -96,7 +101,7 @@ function NewOrderModal({ onSave, onClose }: NewOrderModalProps) {
     if (!customer.trim()) { setError('Customer name is required.'); return; }
     if (!items.trim())    { setError('Please enter at least one item.'); return; }
     orderCounter++;
-    onSave(orderId, customer.trim(), items.trim());
+    onSave(orderId, customer.trim(), items.trim(), source);
   };
 
   return (
@@ -130,6 +135,20 @@ function NewOrderModal({ onSave, onClose }: NewOrderModalProps) {
               onChange={(e) => { setItems(e.target.value); setError(''); }}
             />
           </div>
+          <div className="dash-order-field">
+            <label className="dash-order-label">ORDER SOURCE</label>
+            <select
+              className="dash-order-select"
+              value={source}
+              onChange={(e) => setSource(e.target.value as OrderSource)}
+            >
+              <option value="manual">In-House</option>
+              <option value="doordash">DoorDash</option>
+              <option value="ubereats">UberEats</option>
+              <option value="grubhub">Grubhub</option>
+              <option value="online">Online</option>
+            </select>
+          </div>
           {error && <p className="dash-order-error">{error}</p>}
           <button className="dash-order-submit" type="submit">Place Order</button>
         </form>
@@ -142,7 +161,8 @@ export default function Dashboard() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { activities, addActivity } = useActivity();
-  const { addOrder } = useTodo();
+  const { addOrder, orders } = useTodo();
+  const { staffOnShiftNow } = useStaffing();
 
   const [activeTab,      setActiveTab]      = useState<Tab>('dashboard');
   const [chartModal,     setChartModal]     = useState<ChartType | null>(null);
@@ -167,13 +187,14 @@ export default function Dashboard() {
     else if (action === 'tab-operations')  setActiveTab('operations');
   };
 
-  const handleOrderSave = (orderId: string, customer: string, items: string) => {
+  const handleOrderSave = (orderId: string, customer: string, items: string, source: OrderSource) => {
     addActivity(`New order ${orderId} placed — ${customer} — ${items}`, 'order');
-    addOrder(orderId, customer, items, 'manual');
+    addOrder(orderId, customer, items, source);
     setShowOrderModal(false);
   };
 
   const renderMain = () => {
+    if (activeTab === 'orders')       return <OrdersPage />;
     if (activeTab === 'todo')         return <TodoPage onNavigate={(tab) => setActiveTab(tab as Tab)} />;
     if (activeTab === 'inventory')    return <InventoryPage />;
     if (activeTab === 'operations')   return <OperationsPage />;
@@ -197,7 +218,19 @@ export default function Dashboard() {
 
         {/* Stats grid */}
         <section className="stats-grid">
-          {statsWithUploadedRevenue().map((s) => (
+          {statsWithUploadedRevenue()
+            .map((s) => {
+              // Replace placeholder values with live counts
+              if (s.label === 'Open Orders') {
+                const count = orders.filter((o) => o.status === 'pending').length;
+                return { ...s, value: String(count), change: '', suffix: 'pending now' };
+              }
+              if (s.label === 'Staff On Shift') {
+                return { ...s, value: String(staffOnShiftNow), change: '', suffix: 'on shift now' };
+              }
+              return s;
+            })
+            .map((s) => (
             <div
               className="stat-card stat-card--clickable"
               key={s.label}
@@ -239,17 +272,7 @@ export default function Dashboard() {
               >📦 New Order</button>
               <button className="quick-btn quick-btn--primary" onClick={() => setActiveTab('todo')}>
                 ✓ Task Board
-              </button>
-              <button className="quick-btn" onClick={() => setActiveTab('budget')}>
-                💰 Upload Budget
-              </button>
-              <button className="quick-btn" onClick={() => setActiveTab('inventory')}>
-                🥦 Update Stock
-              </button>
-              <button className="quick-btn" onClick={() => setActiveTab('calendar')}>
-                📅 Schedule
-              </button>
-              
+              </button> 
             </div>
           </section>
         </div>

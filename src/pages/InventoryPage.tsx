@@ -113,26 +113,29 @@ export default function InventoryPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // ── Auto-alerts: low stock & expiring ────────────────────────
+  // ── Auto-alerts: low stock & expiring today ──────────────────
   const alertedRef = useRef<Set<string>>(new Set());
   useEffect(() => {
+    const today = new Date();
     items.forEach((item) => {
-      const lowKey     = `low-${item.id}`;
-      const expKey     = `exp-${item.id}`;
-      const isLow      = checkRestock(item.quantity, item.minThreshold);
-      const isExpiring = item.status === 'Warning' || item.status === 'Expired';
+      const lowKey = `low-${item.id}`;
+      const expKey = `exp-${item.id}`;
+      const isLow  = checkRestock(item.quantity, item.minThreshold);
+
+      // Only alert for items whose expiry date is today (not past, not future)
+      const expiry = new Date(item.expiryDate);
+      const expiresToday =
+        expiry.getFullYear() === today.getFullYear() &&
+        expiry.getMonth()    === today.getMonth()    &&
+        expiry.getDate()     === today.getDate();
 
       if (isLow && !alertedRef.current.has(lowKey)) {
         alertedRef.current.add(lowKey);
         addActivity(`Low stock: ${item.name} (${item.quantity} ${item.unit} remaining)`, 'alert');
       }
-      if (isExpiring && !alertedRef.current.has(expKey)) {
+      if (expiresToday && !alertedRef.current.has(expKey)) {
         alertedRef.current.add(expKey);
-        const label = item.status === 'Expired' ? 'Expired' : 'Expiring soon';
-        addActivity(
-          `${label}: ${item.name} — ${new Date(item.expiryDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`,
-          'alert',
-        );
+        addActivity(`Expires today: ${item.name}`, 'alert');
       }
     });
   // We intentionally only want this to fire when items changes, addActivity is stable

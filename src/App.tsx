@@ -3,6 +3,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ActivityProvider } from './context/ActivityContext';
 import { InventoryProvider } from './context/InventoryContext';
 import { TodoProvider } from './context/TodoContext';
+import { OperationsProvider } from './context/OperationsContext';
+import { StaffingProvider } from './context/StaffingContext';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 
@@ -27,6 +29,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <ActivityProvider>
+        <StaffingProvider>
+        <OperationsProvider>
         <InventoryProvider>
           <TodoProvider>
             <AuthProvider>
@@ -34,6 +38,8 @@ export default function App() {
             </AuthProvider>
           </TodoProvider>
         </InventoryProvider>
+        </OperationsProvider>
+        </StaffingProvider>
       </ActivityProvider>
     </BrowserRouter>
   );

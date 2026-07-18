@@ -8,6 +8,7 @@ import {
 } from '../lib/staffing';
 import { useActivity } from '../context/ActivityContext';
 import { useTodo } from '../context/TodoContext';
+import { useStaffing } from '../context/StaffingContext';
 import './StaffingPage.css';
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -278,9 +279,11 @@ function EmployeeModal({ onSave, onClose }: EmployeeModalProps) {
 export default function StaffingPage() {
   const { addActivity } = useActivity();
   const { addOrder: todoAddOrder } = useTodo();
-  const [employees,   setEmployees]   = useState<Employee[]>(SEED_EMPLOYEES);
-  const [rushPeriods, setRushPeriods] = useState<RushPeriod[]>(SEED_RUSH_PERIODS);
-  const [orders,      setOrders]      = useState<OnlineOrder[]>([]);
+  const {
+    employees,   setEmployees,
+    rushPeriods, setRushPeriods,
+    onlineOrders: orders, setOnlineOrders: setOrders,
+  } = useStaffing();
   const [selectedSlot, setSelectedSlot] = useState<{ day: number; hour: number } | null>(null);
 
   const [showPeakModal,  setShowPeakModal]  = useState(false);
